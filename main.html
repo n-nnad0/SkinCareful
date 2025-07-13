@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkinCareful - Chatbot</title>
+  <style>
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background-color: transparent;
+      overflow-x: hidden;
+    }
+
+    .main-wrapper {
+      background: url("Opening Screen.png") no-repeat center center/cover;
+      min-height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      font-size: 1.75rem;
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    main {
+      display: flex;
+      height: calc(100vh - 80px);
+      position: relative;
+    }
+
+    .chat-panel {
+      flex-grow: 1;
+      padding: 1rem;
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.4s ease;
+    }
+
+    .chat-panel.opened {
+      margin-left: 40%;
+    }
+
+    .chat-panel h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 760px;
+      height: 88vh;
+      border: none;
+    }
+
+    .drawer {
+      width: 40%;
+      background-color: rgba(241, 243, 245, 0.95);
+      position: absolute;
+      left: -40%;
+      top: 0;
+      height: 100%;
+      padding: 1rem;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      z-index: 900;
+      transition: all 0.4s ease;
+    }
+
+    .drawer.opened {
+      left: 0;
+    }
+
+    .drawer h2 {
+      text-align: center;
+      font-size: 1.4rem;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .filters select {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .filters button {
+      flex-shrink: 0;
+      padding: 0.5rem 1rem;
+      border: none;
+      background-color: #444;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .catalogue-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .product-card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .product-image {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-details h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .product-details p {
+      margin: 0.2rem 0;
+      font-size: 0.9rem;
+    }
+
+    .drawer-toggle {
+      position: fixed;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #444, #888);
+      color: white;
+      border-radius: 0 30px 30px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .drawer-guide {
+      position: fixed;
+      top: calc(50% - 90px);
+      left: 70px;
+      background: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      font-size: 0.9rem;
+      z-index: 999;
+      display: none;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1001;
+    }
+
+    .nav-left {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .nav-right {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-right li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-right li a:hover {
+      color: #007bff;
+    }
+
+    /* Chatbot Icon Button */
+    .chatbot-icon {
+      position: fixed;
+      bottom: 20px; /* ⬅️ move from top to bottom */
+      right: 20px;
+      background: #007bff;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Modal Overlay */
+    .chatbot-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 1090;
+      display: none;
+    }
+
+    /* Modal Container */
+    .chatbot-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80vw;
+      max-width: 800px;
+      height: 80vh;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 1101;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Close Button */
+    .chatbot-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #555;
+      z-index: 1102;
+    }
+
+    .flip-card {
+      perspective: 1000px;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      display: flex;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+
+    .flip-card.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      width: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      background-color: #fff;
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+    }
+
+    .card-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotateY(180deg);
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .card-back p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+
+  </style>
+
+  <script>
+    function toggleDrawer() {
+      document.querySelector('.drawer').classList.toggle('opened');
+      document.querySelector('.chat-panel').classList.toggle('opened');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const brandFilter = document.getElementById('brandFilter');
+      const typeFilter = document.getElementById('typeFilter');
+      const clearBtn = document.getElementById('clearFilters');
+      const productCards = document.querySelectorAll('.product-card');
+
+      function applyFilters() {
+        const selectedBrand = brandFilter.value.toLowerCase();
+        const selectedType = typeFilter.value.toLowerCase();
+
+        productCards.forEach(card => {
+          const cardBrand = card.dataset.brand.toLowerCase();
+          const cardType = card.dataset.type.toLowerCase();
+          const matchBrand = !selectedBrand || cardBrand === selectedBrand;
+          const matchType = !selectedType || cardType === selectedType;
+          card.style.display = (matchBrand && matchType) ? '' : 'none';
+        });
+      }
+
+      function clearFilters() {
+        brandFilter.value = '';
+        typeFilter.value = '';
+        applyFilters();
+      }
+
+      brandFilter.addEventListener('change', applyFilters);
+      typeFilter.addEventListener('change', applyFilters);
+      clearBtn.addEventListener('click', clearFilters);
+
+      clearFilters();
+    });
+
+      function openChatbot() {
+        document.getElementById('chatbotModal').style.display = 'block';
+        document.getElementById('chatbotOverlay').style.display = 'block';
+      }
+
+      function closeChatbot() {
+        document.getElementById('chatbotModal').style.display = 'none';
+        document.getElementById('chatbotOverlay').style.display = 'none';
+      }
+  </script>
+</head>
+<body>
+  <!-- Overlay and Modal -->
+  <div class="chatbot-modal-overlay" id="chatbotOverlay"></div>
+
+  <div class="chatbot-modal" id="chatbotModal">
+    <span class="chatbot-close" onclick="closeChatbot()">×</span>
+    <iframe src="https://huggingface.co/spaces/SJ23031029/Flowise2.0" width="100%" height="100%" frameborder="0"></iframe>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-left"><a href="main.html" style="text-decoration: none; color: inherit;">SkinCareful</a></div>
+    <ul class="nav-right">
+      <li><a href="main.html">Chatbot</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-wrapper">
+    <main>
+      <section class="chat-panel" id="chat">
+        <h2>SkincarefulBot</h2>
+        <iframe src="https://cdn.botpress.cloud/webchat/v3.0/shareable.html?configUrl=https://files.bpcontent.cloud/2025/07/09/09/20250709090308-IE7YFPDL.json"></iframe>
+      </section>
+
+      <div class="drawer">
+        <h2>Product Catalogue</h2>
+        <div class="filters">
+          <select id="brandFilter">
+            <option value="">All Brands</option>
+            <option value="cetaphil">Cetaphil</option>
+            <option value="la_roche_posay">La Roche-Posay</option>
+            <option value="bioderma">Bioderma</option>
+            <option value="truu">TRUU</option>
+            <option value="dermal_therapy">Dermal Therapy</option>
+            <option value="dermalogica">Dermalogica</option>
+            <option value="estee_lauder">Estee Lauder</option>
+            <option value="loccitane">L'Occitane</option>
+            <option value="kew_organics">Kew Organics</option>
+          </select>
+
+          <select id="typeFilter">
+            <option value="">All Product Types</option>
+            <option value="cleanser">Cleanser</option>
+            <option value="moisturizer">Moisturizer</option>
+            <option value="serum">Serum</option>
+            <option value="treatment">Treatment</option>
+            <option value="sunscreen">Sunscreen</option>
+            <option value="toner">Toner</option>
+          </select>
+
+          <button id="clearFilters">Remove All Filters</button>
+        </div>
+
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-inner">
+            <div class="card-front">
+              <!-- Existing product-card front -->
+              <img src="Cetaphil Gentle Skin Cleanser.png" class="product-image" />
+              <div class="product-details">
+                <h3>Cetaphil Gentle Skin Cleanser</h3>
+                <p><strong>Brand:</strong> Cetaphil</p>
+                <p><strong>Type:</strong> Cleanser</p>
+                <p><strong>Best For:</strong> Sensitive, Dry Skin</p>
+                <p><strong>Skin Concerns:</strong> Dryness, Redness</p>
+                <p><strong>Age Range:</strong> 12–30+</p>
+                <p><strong>Budget:</strong> $30–$60</p>
+              </div>
+            </div>
+            <div class="card-back">
+              <p><strong>Ingredients:</strong> Water, Cetyl Alcohol, Propylene Glycol, Sodium Lauryl Sulfate</p>
+              <p><strong>Fun Fact:</strong> This iconic cleanser was developed in 1947 and has been a staple for dermatologists ever since.</p>
+              <p><em>💬 Need help? Chat with SkincarefulBot to find out if this product suits your routine!</em></p>
+            </div>
+          </div>
+        </div>
+          <div class="product-card" data-name="Cetaphil Moisturising Cream" data-brand="cetaphil" data-type="moisturizer">
+            <img src="Cetaphil Singapore Moisturizing Cream.png" class="product-image" />
+            <div class="product-details">
+              <h3>Cetaphil Moisturising Cream</h3>
+              <p><strong>Brand:</strong> Cetaphil</p>
+              <p><strong>Type:</strong> Moisturizer</p>
+              <p><strong>Best For:</strong> Dry, Sensitive Skin</p>
+              <p><strong>Skin Concerns:</strong> Dryness</p>
+              <p><strong>Age Range:</strong> 12–30+</p>
+              <p><strong>Budget:</strong> $30–$60</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="76 Probiotics Amino Purifying Cleanser" data-brand="truu" data-type="cleanser">
+            <img src="76 Probiotics Amino Purifying Cleanser.jpg" class="product-image" />
+            <div class="product-details">
+              <h3>76 Probiotics Amino Purifying Cleanser</h3>
+              <p><strong>Brand:</strong> TRUU</p>
+              <p><strong>Type:</strong> Cleanser</p>
+              <p><strong>Best For:</strong> Oily, Acne-Prone Skin</p>
+              <p><strong>Skin Concerns:</strong> Acne, Oiliness</p>
+              <p><strong>Age Range:</strong> Teen–30</p>
+              <p><strong>Budget:</strong> $30–$60</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Acne Control Wash" data-brand="dermal_therapy" data-type="cleanser">
+            <img src="Acne Control Wash.png" class="product-image" />
+            <div class="product-details">
+              <h3>Acne Control Wash</h3>
+              <p><strong>Brand:</strong> Dermal Therapy</p>
+              <p><strong>Type:</strong> Cleanser</p>
+              <p><strong>Best For:</strong> Oily, Acne-Prone Skin</p>
+              <p><strong>Skin Concerns:</strong> Acne, Breakouts</p>
+              <p><strong>Age Range:</strong> 12–18</p>
+              <p><strong>Budget:</strong> $30–$60</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Active Moist Moisturizer" data-brand="dermalogica" data-type="moisturizer">
+            <img src="Active Moist Moisturizer.jpeg" class="product-image" />
+            <div class="product-details">
+              <h3>Active Moist Moisturizer</h3>
+              <p><strong>Brand:</strong> Dermalogica</p>
+              <p><strong>Type:</strong> Moisturizer</p>
+              <p><strong>Best For:</strong> Normal to Oily Skin</p>
+              <p><strong>Skin Concerns:</strong> Dehydration, Acne-prone</p>
+              <p><strong>Age Range:</strong> 18–30</p>
+              <p><strong>Budget:</strong> $60–$80</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Advanced Night Repair Eye Supercharged Gel-Creme Duo" data-brand="estee_lauder" data-type="moisturizer">
+            <img src="Advanced Night Repair Eye Supercharged Gel-Creme Duo.png" class="product-image" />
+            <div class="product-details">
+              <h3>Advanced Night Repair Eye Supercharged Gel-Creme Duo</h3>
+              <p><strong>Brand:</strong> Estée Lauder</p>
+              <p><strong>Type:</strong> Moisturizer</p>
+              <p><strong>Best For:</strong> All Skin Types</p>
+              <p><strong>Skin Concerns:</strong> Fine Lines, Puffiness</p>
+              <p><strong>Age Range:</strong> 24+</p>
+              <p><strong>Budget:</strong> $100+</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Advanced Night Repair Synchronized Multi-Recovery Complex" data-brand="estee_lauder" data-type="serum">
+            <img src="Advanced Night Repair Synchronized Multi-Recovery Complex.jpg" class="product-image" />
+            <div class="product-details">
+              <h3>Advanced Night Repair Synchronized Multi-Recovery Complex</h3>
+              <p><strong>Brand:</strong> Estée Lauder</p>
+              <p><strong>Type:</strong> Serum</p>
+              <p><strong>Best For:</strong> All Skin Types</p>
+              <p><strong>Skin Concerns:</strong> Dullness, Fine Lines</p>
+              <p><strong>Age Range:</strong> 24+</p>
+              <p><strong>Budget:</strong> $100+</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Almond Shower Oil" data-brand="loccitane" data-type="cleanser">
+            <img src="Almond Shower Oil.jpg" class="product-image" />
+            <div class="product-details">
+              <h3>Almond Shower Oil</h3>
+              <p><strong>Brand:</strong> L'Occitane</p>
+              <p><strong>Type:</strong> Cleanser</p>
+              <p><strong>Best For:</strong> Dry, Eczema-prone Skin</p>
+              <p><strong>Skin Concerns:</strong> Dryness, Irritation</p>
+              <p><strong>Age Range:</strong> All Ages</p>
+              <p><strong>Budget:</strong> $60–$80</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Apple Vita Glow Serum" data-brand="kew_organics" data-type="serum">
+            <img src="Apple-Stem-Cell-Vitaglow-Serum-Kew.jpg" class="product-image" />
+            <div class="product-details">
+              <h3>Apple Vita Glow Serum</h3>
+              <p><strong>Brand:</strong> Kew Organics</p>
+              <p><strong>Type:</strong> Serum</p>
+              <p><strong>Best For:</strong> Normal, Dull Skin</p>
+              <p><strong>Skin Concerns:</strong> Dullness, Uneven Tone</p>
+              <p><strong>Age Range:</strong> 18–30</p>
+              <p><strong>Budget:</strong> $60–$80</p>
+            </div>
+          </div>
+
+          <div class="product-card" data-name="Anthelios Clear Skin Oil Free Sunscreen SPF 60" data-brand="la_roche_posay" data-type="sunscreen">
+            <img src="Anthelios Clear Skin Oil Free Sunscreen SPF 60.jpg" class="product-image" />
+            <div class="product-details">
+              <h3>Anthelios Clear Skin Oil Free Sunscreen SPF 60</h3>
+              <p><strong>Brand:</strong> La Roche-Posay</p>
+              <p><strong>Type:</strong> Sunscreen</p>
+              <p><strong>Best For:</strong> Oily, Acne-prone Skin</p>
+              <p><strong>Skin Concerns:</strong> Acne, Sun Protection</p>
+              <p><strong>Age Range:</strong> Teen–30</p>
+              <p><strong>Budget:</strong> $30–$60</p>
+            </div>
+          </div>
+
+      <div class="drawer-toggle" onclick="toggleDrawer()">➤</div>
+      <div class="drawer-guide">Pull the tab to show product catalogue</div>
+    </main>
+  </div>
+  <footer id="footer" style="background:#f1f3f5; padding:2rem; text-align:center; font-size:0.95rem;">
+    <p>📧 Email: <a href="mailto:skincareful@example.com">skincareful@example.com</a></p>
+    <p>📱 Follow us: 
+      <a href="https://www.instagram.com/">Instagram</a> | 
+      <a href="https://www.tiktok.com/login">TikTok</a> | 
+      <a href="https://www.facebook.com/login.php/">Facebook</a>
+    </p>
+    <p>© 2025 SkinCareful. All rights reserved.</p>
+  </footer>
+  <script type="module">
+    import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+    Chatbot.init({
+      chatflowid: "5bffbf6a-f8b7-4192-9f30-1a78b30d62d5",
+      apiHost: "https://sj23031029-flowise2-0.hf.space"
+    })
+  </script>
+
+</body>
+</html>
