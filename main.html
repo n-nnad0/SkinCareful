@@ -281,50 +281,6 @@
       z-index: 1102;
     }
 
-    .flip-card {
-      perspective: 1000px;
-    }
-
-    .flip-inner {
-      position: relative;
-      width: 100%;
-      display: flex;
-      transform-style: preserve-3d;
-      transition: transform 0.6s ease;
-    }
-
-    .flip-card.flipped .flip-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
-      width: 100%;
-      backface-visibility: hidden;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      background-color: #fff;
-      display: flex;
-      gap: 1.2rem;
-      align-items: center;
-    }
-
-    .card-back {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform: rotateY(180deg);
-      flex-direction: column;
-      text-align: center;
-      justify-content: center;
-    }
-
-    .card-back p {
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-
-
   </style>
 
   <script>
@@ -430,28 +386,20 @@
           <button id="clearFilters">Remove All Filters</button>
         </div>
 
-        <div class="flip-card" onclick="this.classList.toggle('flipped')">
-          <div class="flip-inner">
-            <div class="card-front">
-              <!-- Existing product-card front -->
-              <img src="Cetaphil Gentle Skin Cleanser.png" class="product-image" />
-              <div class="product-details">
-                <h3>Cetaphil Gentle Skin Cleanser</h3>
-                <p><strong>Brand:</strong> Cetaphil</p>
-                <p><strong>Type:</strong> Cleanser</p>
-                <p><strong>Best For:</strong> Sensitive, Dry Skin</p>
-                <p><strong>Skin Concerns:</strong> Dryness, Redness</p>
-                <p><strong>Age Range:</strong> 12–30+</p>
-                <p><strong>Budget:</strong> $30–$60</p>
-              </div>
-            </div>
-            <div class="card-back">
-              <p><strong>Ingredients:</strong> Water, Cetyl Alcohol, Propylene Glycol, Sodium Lauryl Sulfate</p>
-              <p><strong>Fun Fact:</strong> This iconic cleanser was developed in 1947 and has been a staple for dermatologists ever since.</p>
-              <p><em>💬 Need help? Chat with SkincarefulBot to find out if this product suits your routine!</em></p>
+        <div class="catalogue-section">
+          <div class="product-card" data-name="Cetaphil Gentle Skin Cleanser" data-brand="cetaphil" data-type="cleanser">
+            <img src="Cetaphil Gentle Skin Cleanser.png" class="product-image" />
+            <div class="product-details">
+              <h3>Cetaphil Gentle Skin Cleanser</h3>
+              <p><strong>Brand:</strong> Cetaphil</p>
+              <p><strong>Type:</strong> Cleanser</p>
+              <p><strong>Best For:</strong> Sensitive, Dry Skin</p>
+              <p><strong>Skin Concerns:</strong> Dryness, Redness</p>
+              <p><strong>Age Range:</strong> 12–30+</p>
+              <p><strong>Budget:</strong> $30–$60</p>
             </div>
           </div>
-        </div>
+
           <div class="product-card" data-name="Cetaphil Moisturising Cream" data-brand="cetaphil" data-type="moisturizer">
             <img src="Cetaphil Singapore Moisturizing Cream.png" class="product-image" />
             <div class="product-details">
